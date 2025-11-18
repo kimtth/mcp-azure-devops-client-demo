@@ -1,0 +1,12 @@
+[project]
+name = "mcp-azure-devops"
+version = "0.1.0"
+description = "Minimal demo of interacting with Azure DevOps via an MCP Server"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "azure-identity>=1.25.1",
+    "mcp>=1.21.2",
+    "openai>=2.8.1",
+    "python-dotenv>=1.2.1",
+]
