@@ -54,8 +54,9 @@ def get_tool_summary():
 
 def search_tools_by_intent(tools_list, user_prompt):
     """
-    Smart tool filtering based on user intent.
-    Returns only relevant tools instead of all 77.
+    Smart tool filtering based on user intent with aggressive fallback.
+    Returns only relevant tools instead of all 77, but always ensures
+    enough tools are available to prevent 'no tool' errors.
     """
     prompt_lower = user_prompt.lower()
     relevant_categories = set()
@@ -88,6 +89,18 @@ def search_tools_by_intent(tools_list, user_prompt):
     
     # Return only relevant tools
     filtered_tools = [t for t in tools_list if t.name in relevant_tool_names]
+    
+    # If too few tools, expand to prevent 'no tool' errors
+    if len(filtered_tools) < 5 and len(tools_list) > len(filtered_tools):
+        # Try to include all list/get tools for broader coverage
+        all_list_tools = [t for t in tools_list if any(x in t.name.lower() for x in ["list", "get"])]
+        if len(all_list_tools) >= 3:
+            print(f"⚠️  Expanding tool set: {len(filtered_tools)} → {len(all_list_tools)} (insufficient specific tools)")
+            filtered_tools = all_list_tools
+        else:
+            # Last resort: use all tools to avoid 'no tools available' error
+            print(f"⚠️  Using all {len(tools_list)} tools (insufficient list/get tools)")
+            filtered_tools = tools_list
     
     print(f"📊 Token Optimization: Using {len(filtered_tools)} tools (filtered from {len(tools_list)})")
     print(f"   Categories: {', '.join(relevant_categories)}")
